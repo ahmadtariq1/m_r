@@ -1,0 +1,94 @@
+{
+  "movies": [
+    {
+      "name": "The Shawshank Redemption",
+      "year": 1994,
+      "genre": "Drama",
+      "rating": 9.3,
+      "runtime_category": "long",
+      "tagline": "Fear can hold you prisoner. Hope can set you free.",
+      "age_rating": "17+"
+    },
+    {
+      "name": "The Godfather",
+      "year": 1972,
+      "genre": "Crime, Drama",
+      "rating": 9.2,
+      "runtime_category": "long",
+      "tagline": "An offer you can't refuse.",
+      "age_rating": "17+"
+    },
+    {
+      "name": "The Dark Knight",
+      "year": 2008,
+      "genre": "Action, Crime, Drama",
+      "rating": 9.0,
+      "runtime_category": "long",
+      "tagline": "Why so serious?",
+      "age_rating": "13+"
+    },
+    {
+      "name": "Pulp Fiction",
+      "year": 1994,
+      "genre": "Crime, Drama",
+      "rating": 8.9,
+      "runtime_category": "long",
+      "tagline": "You won't know the facts until you've seen the fiction.",
+      "age_rating": "17+"
+    },
+    {
+      "name": "Forrest Gump",
+      "year": 1994,
+      "genre": "Drama, Romance",
+      "rating": 8.8,
+      "runtime_category": "long",
+      "tagline": "Life is like a box of chocolates...",
+      "age_rating": "13+"
+    },
+    {
+      "name": "Inception",
+      "year": 2010,
+      "genre": "Action, Adventure, Sci-Fi",
+      "rating": 8.8,
+      "runtime_category": "long",
+      "tagline": "Your mind is the scene of the crime.",
+      "age_rating": "13+"
+    },
+    {
+      "name": "The Matrix",
+      "year": 1999,
+      "genre": "Action, Sci-Fi",
+      "rating": 8.7,
+      "runtime_category": "medium",
+      "tagline": "Welcome to the Real World.",
+      "age_rating": "13+"
+    },
+    {
+      "name": "Toy Story",
+      "year": 1995,
+      "genre": "Animation, Adventure, Comedy",
+      "rating": 8.3,
+      "runtime_category": "short",
+      "tagline": "To infinity and beyond!",
+      "age_rating": "all"
+    },
+    {
+      "name": "Up",
+      "year": 2009,
+      "genre": "Animation, Adventure, Comedy",
+      "rating": 8.2,
+      "runtime_category": "short",
+      "tagline": "Adventure is out there!",
+      "age_rating": "all"
+    },
+    {
+      "name": "Finding Nemo",
+      "year": 2003,
+      "genre": "Animation, Adventure, Comedy",
+      "rating": 8.2,
+      "runtime_category": "short",
+      "tagline": "Just keep swimming.",
+      "age_rating": "all"
+    }
+  ]
+} 

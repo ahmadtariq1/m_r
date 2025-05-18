@@ -1,15 +1,16 @@
 from http.server import BaseHTTPRequestHandler
 import json
-import joblib
-from sklearn.metrics.pairwise import cosine_similarity
+import os
+
+def load_movies():
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(current_dir, 'movies.json'), 'r') as f:
+        return json.load(f)['movies']
 
 def recommend_movies(genre_preference, runtime_pref, age, top_n=5, min_rating=8.0):
     try:
-        # Load the model
-        model = joblib.load('movie_recommender.joblib')
-        tfidf = model['tfidf']
-        cosine_sim = model['cosine_sim']
-        movies = model['movies']
+        # Load movies
+        movies = load_movies()
         
         # Determine age rating based on user's age
         if age < 10:
@@ -21,52 +22,69 @@ def recommend_movies(genre_preference, runtime_pref, age, top_n=5, min_rating=8.
         else:
             age_rating = '17+'
         
-        # Clean genre input
-        cleaned_genre = ' '.join([g.strip().lower() for g in genre_preference.split(',')])
+        # Filter movies based on criteria
+        filtered_movies = []
+        genre_terms = [g.strip().lower() for g in genre_preference.split(',')]
         
-        # Create query string
-        query = f"{cleaned_genre} {runtime_pref.lower()} {age_rating}"
+        for movie in movies:
+            # Check runtime preference
+            if movie['runtime_category'].lower() != runtime_pref.lower():
+                continue
+                
+            # Check rating threshold
+            if movie['rating'] < min_rating:
+                continue
+                
+            # Check age appropriateness
+            if not (movie['age_rating'] == 'all' or 
+                   (age_rating == '10+' and movie['age_rating'] in ['all', '10+']) or
+                   (age_rating == '13+' and movie['age_rating'] in ['all', '10+', '13+']) or
+                   age_rating == '17+'):
+                continue
+                
+            # Check genre match
+            movie_genres = [g.strip().lower() for g in movie['genre'].split(',')]
+            if any(genre in movie_genres for genre in genre_terms):
+                filtered_movies.append(movie)
         
-        # Vectorize the query
-        query_vec = tfidf.transform([query])
+        # Sort by rating and return top N
+        filtered_movies.sort(key=lambda x: x['rating'], reverse=True)
+        recommendations = filtered_movies[:top_n]
         
-        # Compute similarity between query and all movies
-        sim_scores = cosine_similarity(query_vec, tfidf.transform(model['features'])).flatten()
-        
-        # Filter movies by minimum rating and age appropriateness
-        valid_movies = movies[
-            (movies['rating'] >= min_rating) & 
-            (movies['age_rating'] <= age_rating)
-        ].copy()
-        valid_movies['similarity'] = sim_scores[valid_movies.index]
-        
-        # Get top N most similar movies
-        recommendations = valid_movies.sort_values(
-            by=['similarity', 'rating'], 
-            ascending=[False, False]
-        ).head(top_n)
-        
-        # Convert to list of dictionaries
-        result = recommendations[['name', 'year', 'genre', 'rating', 'runtime_category', 'tagline']].to_dict('records')
-        return {"success": True, "recommendations": result}
+        return {"success": True, "recommendations": recommendations}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = json.loads(post_data)
+def handler(event, context):
+    try:
+        # Parse the request body
+        body = json.loads(event['body'])
         
-        genre = data.get('genre', '')
-        runtime = data.get('runtime', '')
-        age = data.get('age', 0)
-        top_n = data.get('topN', 5)
-        min_rating = data.get('minRating', 8.0)
+        genre = body.get('genre', '')
+        runtime = body.get('runtime', '')
+        age = body.get('age', 0)
+        top_n = body.get('topN', 5)
+        min_rating = body.get('minRating', 8.0)
         
         result = recommend_movies(genre, runtime, age, top_n, min_rating)
         
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(result).encode()) 
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps(result)
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'success': False,
+                'error': str(e)
+            })
+        } 
