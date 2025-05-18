@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pip install -r requirements.txt && next build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["all"],
+  "functions": {
+    "api/recommendations": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+} 
