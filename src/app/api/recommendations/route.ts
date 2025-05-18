@@ -1,9 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import movies from '../../../../api/recommendations/movies.json';
 
-export async function POST(request: Request) {
+interface RequestBody {
+  genre: string;
+  runtime: string;
+  age: number;
+  topN?: number;
+  minRating?: number;
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const { genre, runtime, age, topN = 5, minRating = 8.0 } = await request.json();
+    const { genre, runtime, age, topN = 5, minRating = 8.0 }: RequestBody = await request.json();
 
     if (!genre || !runtime || !age) {
       return NextResponse.json(
@@ -25,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     // Filter movies based on criteria
-    const genre_terms = genre.toLowerCase().split(',').map(g => g.trim());
+    const genre_terms = genre.toLowerCase().split(',').map((g: string): string => g.trim());
     
     const filtered_movies = movies.movies.filter(movie => {
       // Check runtime preference
@@ -50,8 +58,8 @@ export async function POST(request: Request) {
       }
 
       // Check genre match
-      const movie_genres = movie.genre.toLowerCase().split(',').map(g => g.trim());
-      return genre_terms.some(genre => movie_genres.includes(genre));
+      const movie_genres = movie.genre.toLowerCase().split(',').map((g: string): string => g.trim());
+      return genre_terms.some((genreItem: string): boolean => movie_genres.includes(genreItem));
     });
 
     // Sort by rating and get top N
